@@ -1,0 +1,15 @@
+#define CATCH_CONFIG_RUNNER
+#include "catch2/catch.hpp"
+#include "arjan/unix/process.hpp"
+#include <string>
+
+std::string cmake_command = "@CMAKE_COMMAND@";
+std::string cat_command = "@CAT_COMMAND@";
+std::string env_command = "@ENV_COMMAND@";
+std::vector< std::string > current_environment;
+
+int main( int argc, char* argv[], char *envp[] )
+{
+	current_environment = arjan::unix::process::environment( envp );
+	return Catch::Session().run( argc, argv );
+}

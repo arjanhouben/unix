@@ -3,7 +3,7 @@
 #include <compare>
 
 namespace arjan {
-namespace unix {
+namespace unix_tools {
 
 struct file
 {

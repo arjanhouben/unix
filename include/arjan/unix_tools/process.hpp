@@ -5,12 +5,15 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <fcntl.h>
+#ifdef __linux__
+#include <wait.h>
+#endif
 
-#include "arjan/unix/file.hpp"
-#include "arjan/unix/pipe.hpp"
+#include "arjan/unix_tools/file.hpp"
+#include "arjan/unix_tools/pipe.hpp"
 
 namespace arjan {
-namespace unix {
+namespace unix_tools {
 namespace process {
 
 template < typename F, typename ...Args >
@@ -87,7 +90,7 @@ struct handle
 
 	const int pid;
 	result_value result;
-	unix::file cin, cout, cerr;
+	unix_tools::file cin, cout, cerr;
 };
 
 enum class redirects
@@ -141,10 +144,10 @@ T environment( char **environment )
 template < typename ...Args >
 process::handle process( process::options options_, const std::string &cmd, Args ...args )
 {
-	constexpr auto input = unix::pipe::input;
-	constexpr auto output = unix::pipe::output;
+	constexpr auto input = unix_tools::pipe::input;
+	constexpr auto output = unix_tools::pipe::output;
 
-	std::array< unix::pipe, 3 > pipes;
+	std::array< unix_tools::pipe, 3 > pipes;
 
 	constexpr std::array FILE_DESCRIPTORS = {
 		STDIN_FILENO,
@@ -154,7 +157,7 @@ process::handle process( process::options options_, const std::string &cmd, Args
 
 	static_assert( STDERR_FILENO < FILE_DESCRIPTORS.size() );
 
-	constexpr auto get_direction = []( auto id )
+	const auto get_direction = [&]( auto id )
 	{
 		return ( id == STDIN_FILENO ) ? input : output;
 	};
@@ -167,8 +170,8 @@ process::handle process( process::options options_, const std::string &cmd, Args
 				pipes[ pipe_id ].open();
 				break;
 			case process::redirects::null:
-				pipes[ pipe_id ][ input ] = unix::file( "/dev/null", unix::file::mode::read );
-				pipes[ pipe_id ][ output ] = unix::file( "/dev/null", unix::file::mode::write );
+				pipes[ pipe_id ][ input ] = unix_tools::file( "/dev/null", unix_tools::file::mode::read );
+				pipes[ pipe_id ][ output ] = unix_tools::file( "/dev/null", unix_tools::file::mode::write );
 				break;
 			case process::redirects::parent:
 				break;

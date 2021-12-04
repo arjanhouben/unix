@@ -1,11 +1,11 @@
 #pragma once
 
-#include "arjan/unix/file.hpp"
+#include "arjan/unix_tools/file.hpp"
 
 namespace arjan {
-namespace unix {
+namespace unix_tools {
 
-struct pipe : std::array< unix::file, 2 >
+struct pipe : std::array< unix_tools::file, 2 >
 {
 	enum direction
 	{

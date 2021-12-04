@@ -24,6 +24,11 @@ target_include_directories( process
 		include
 )
 
+if( CMAKE_HOST_UNIX )
+	find_package( Threads REQUIRED )
+	target_link_libraries( process INTERFACE Threads::Threads )
+endif()
+
 if( PROJECT_IS_TOP_LEVEL )
 
 	FetchContent_Declare( catch 

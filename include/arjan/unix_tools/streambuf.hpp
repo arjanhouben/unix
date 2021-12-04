@@ -2,10 +2,10 @@
 
 #include <streambuf>
 
-#include "arjan/unix/file.hpp"
+#include "arjan/unix_tools/file.hpp"
 
 namespace arjan {
-namespace unix {
+namespace unix_tools {
 
 template < typename char_type = char >
 struct basic_streambuf : std::basic_streambuf< char_type >
@@ -19,7 +19,7 @@ struct basic_streambuf : std::basic_streambuf< char_type >
 		file_( std::move( f ) ),
 		gcurrent_( traits_type::eof() ) {}
 
-	auto reset( unix::file &&fileno = file() ) noexcept
+	auto reset( unix_tools::file &&fileno = file() ) noexcept
 	{
 		std::swap( file_, fileno );
 		gcurrent_ = traits_type::eof();

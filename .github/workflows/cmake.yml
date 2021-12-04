@@ -23,11 +23,11 @@ jobs:
 
     - name: Install required tools
       run: |
-        apt-get update 
-        apt-get install -y --no-install-recommends gcc-10 g++-10 wget libssl-dev git ca-certificates make
+        sudo apt-get update 
+        sudo apt-get install -y --no-install-recommends gcc-10 g++-10 wget libssl-dev git ca-certificates make
         wget https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2.tar.gz
         tar -zxvf cmake-3.20.2.tar.gz
-        cd cmake-3.20.2 && CC=gcc-10 CXX=g++-10 ./bootstrap && make && make install
+        cd cmake-3.20.2 && CC=gcc-10 CXX=g++-10 ./bootstrap && make && sudo make install
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

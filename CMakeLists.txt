@@ -61,6 +61,13 @@ if( PROJECT_IS_TOP_LEVEL )
 			Catch2
 	)
 
+	target_compile_options( runtest
+		PRIVATE
+			-Wall
+			-Wpedantic
+			-Wconversion
+	)
+
 	add_test( runtest runtest ${CMAKE_COMMAND} )
 
 endif()

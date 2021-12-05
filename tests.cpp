@@ -24,9 +24,11 @@ template < typename ...Args >
 std::string process_to_string( const std::string &cmd, Args &&...args )
 {
 	options opts {
-		redirects::null,
-		redirects::pipe,
-		redirects::null
+		{
+			redirects::null,
+			redirects::pipe,
+			redirects::null
+		}
 	};
 	arjan::unix_tools::ifstream stream{
 		process( opts, cmd, std::forward< Args >( args )... ).cout

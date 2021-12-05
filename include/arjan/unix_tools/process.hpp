@@ -192,7 +192,7 @@ process::handle process( process::options options_, const std::string &cmd, Args
 
 	std::array< unix_tools::pipe, 3 > pipes;
 
-	constexpr std::array FILE_DESCRIPTORS = {
+	constexpr std::array< size_t, 3 > FILE_DESCRIPTORS = {
 		STDIN_FILENO,
 		STDOUT_FILENO,
 		STDERR_FILENO
@@ -228,11 +228,11 @@ process::handle process( process::options options_, const std::string &cmd, Args
 		{
 			if ( pipes[ pipe_id ] )
 			{
-				check_errno( close, pipe_id );
+				check_errno( close, static_cast< int >( pipe_id ) );
 				check_errno( 
 					dup2, 
 					pipes[ pipe_id ][ get_direction( pipe_id ) ].get(),
-					pipe_id
+					static_cast< int >( pipe_id )
 				);
 				pipes[ pipe_id ].close();
 			}

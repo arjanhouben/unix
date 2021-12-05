@@ -6,27 +6,27 @@ endif()
 
 cmake_policy( SET CMP0048 NEW )
 
-project( process VERSION 1.0.0 )
+project( unix_tools VERSION 1.0.0 )
 
 cmake_minimum_required( VERSION 3.19 )
 
 include( FetchContent )
 
-add_library( process INTERFACE )
+add_library( unix_tools INTERFACE )
 
-target_compile_features( process
+target_compile_features( unix_tools
 	INTERFACE
 		cxx_std_20
 )
 
-target_include_directories( process
+target_include_directories( unix_tools
 	INTERFACE
 		include
 )
 
 if( CMAKE_HOST_UNIX )
 	find_package( Threads REQUIRED )
-	target_link_libraries( process INTERFACE Threads::Threads )
+	target_link_libraries( unix_tools INTERFACE Threads::Threads )
 endif()
 
 if( PROJECT_IS_TOP_LEVEL )
@@ -57,7 +57,7 @@ if( PROJECT_IS_TOP_LEVEL )
 
 	target_link_libraries( runtest
 		PRIVATE
-			process
+			unix_tools
 			Catch2
 	)
 

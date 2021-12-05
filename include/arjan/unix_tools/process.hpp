@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 #ifdef __linux__
 #include <wait.h>
 #endif
@@ -81,11 +82,53 @@ struct result_value
 		const int exception_count = std::uncaught_exceptions();
 };
 
+enum class signal
+{
+	abort = SIGABRT,
+	alarm = SIGALRM,
+	bus_error = SIGBUS,
+	child_stopped = SIGCHLD,
+	continue_ = SIGCONT,
+	emulator_trap = SIGEMT,
+	floating_point_exception = SIGFPE,
+	hangup = SIGHUP,
+	illegal_instruction = SIGILL,
+	interrupt = SIGINT,
+	io_possible = SIGIO,
+	kill = SIGKILL,
+	broken_pipe = SIGPIPE,
+#ifdef SIGPOLL
+	poll = SIGPOLL,
+#endif
+	profiling_timer = SIGPROF,
+#ifdef SIGPWR
+	power_failure = SIGPWR,
+#endif
+	quit = SIGQUIT,
+	segmentation_faul = SIGSEGV,
+	stop = SIGSTOP,
+	bad_system_call = SIGSYS,
+	termination = SIGTERM,
+	breakpoint = SIGTRAP,
+	terminal_input = SIGTTIN,
+	terminal_output = SIGTTOU,
+	urgent = SIGURG,
+	user_1 = SIGUSR1,
+	user_2 = SIGUSR2,
+	virtual_alarm = SIGVTALRM,
+	CPU_time_limit = SIGXCPU,
+};
+
 struct handle
 {
 	explicit operator bool()
 	{
 		return static_cast< bool >( result );
+	}
+
+	void kill( signal s = signal::kill )
+	{
+		check_errno( ::kill, pid, static_cast< std::underlying_type_t< signal > >( s ) );
 	}
 
 	const int pid;

@@ -92,3 +92,14 @@ TEST_CASE( "run command with modified env" )
 	);
 	CHECK( result == test_environment );
 }
+
+TEST_CASE( "kill running process" )
+{
+	options opts;
+	opts.throw_on_unexpected_return_code = false;
+	auto p = process( opts, cat_command );
+	CHECK_FALSE( p.result.finished() );
+	p.kill();
+	CHECK( p.result.value() != opts.expected_return_code );
+	CHECK( p.result.finished() );
+}

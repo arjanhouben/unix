@@ -46,6 +46,8 @@ struct result_value
 		}
 	}
 
+	result_value( result_value&& ) = default;
+
 	inline explicit operator bool() 
 	{
 		return expected_ == value();
@@ -184,8 +186,7 @@ T environment( char **environment )
 	return result;
 }
 
-template < typename ...Args >
-process::handle process( process::options options_, const std::string &cmd, Args ...args )
+inline process::handle process( process::options options_, std::string cmd, std::vector< std::string > arguments = {} )
 {
 	constexpr auto input = unix_tools::pipe::input;
 	constexpr auto output = unix_tools::pipe::output;
@@ -238,8 +239,9 @@ process::handle process( process::options options_, const std::string &cmd, Args
 			}
 		};
 
-		std::vector< std::string > arguments = { cmd, args... };
 		std::vector< char* > parameters, environment;
+		cmd.push_back( 0 );
+		parameters.push_back( &cmd[ 0 ] );
 		const auto append_null_terminator = []( auto &storage )
 		{
 			return [&]( auto &str )
@@ -250,7 +252,6 @@ process::handle process( process::options options_, const std::string &cmd, Args
 		};
 		for_each( arguments, append_null_terminator( parameters ) );
 		for_each( options_.environment, append_null_terminator( environment ) );
-		
 		parameters.push_back( nullptr );
 		environment.push_back( nullptr );
 		execve( cmd.c_str(), parameters.data(), environment.data() );
@@ -286,6 +287,12 @@ process::handle process( process::options options_, const std::string &cmd, Args
 		std::move( pipes[ STDOUT_FILENO ][ input ] ),
 		std::move( pipes[ STDERR_FILENO ][ input ] )
 	};
+}
+
+template < typename ...Args >
+process::handle process( process::options options_, const std::string &cmd, Args ...args )
+{
+	return process( options_, cmd, std::vector< std::string >{ args... } );
 }
 
 }}}

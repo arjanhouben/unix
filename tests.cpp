@@ -1,6 +1,6 @@
 #include "catch2/catch.hpp"
-#include "arjan/unix_tools/process.hpp"
-#include "arjan/unix_tools/fstream.hpp"
+#include "arjan/posix/process.hpp"
+#include "arjan/posix/fstream.hpp"
 
 #include <iostream>
 #include <iterator>
@@ -10,14 +10,14 @@ extern const std::string cat_command;
 extern const std::string env_command;
 extern const std::vector< std::string > current_environment;
 
-using arjan::unix_tools::process::process;
-using arjan::unix_tools::process::options;
-using arjan::unix_tools::process::redirects;
+using arjan::posix::process::process;
+using arjan::posix::process::options;
+using arjan::posix::process::redirects;
 
 template < typename ...Args >
 auto process( const std::string &cmd, Args &&...args )
 {
-	return process( arjan::unix_tools::process::options{}, cmd, std::forward< Args >( args )... );
+	return process( arjan::posix::process::options{}, cmd, std::forward< Args >( args )... );
 }
 
 template < typename ...Args >
@@ -30,7 +30,7 @@ std::string process_to_string( const std::string &cmd, Args &&...args )
 			redirects::null
 		}
 	};
-	arjan::unix_tools::ifstream stream{
+	arjan::posix::ifstream stream{
 		process( opts, cmd, std::forward< Args >( args )... ).cout
 	};
 	return {
@@ -49,7 +49,7 @@ TEST_CASE( "run cmake command with incorrect argument" )
 {
 	REQUIRE_THROWS_AS( 
 		process_to_string( cmake_command, "this is incorrect" ),
-		arjan::unix_tools::process::unexpected_return_code
+		arjan::posix::process::unexpected_return_code
 	);
 	options opts;
 	opts.throw_on_unexpected_return_code = false;
@@ -71,12 +71,12 @@ TEST_CASE( "run cmake command and check input and output" )
 	opt.cin = redirects::pipe;
 	opt.cout = redirects::pipe;
 	auto p = process( opt, cat_command );
-	CHECK( p.cin != arjan::unix_tools::file() );
+	CHECK( p.cin != arjan::posix::file() );
 	const std::string test_data = "some_test_data";
-	arjan::unix_tools::ofstream( std::move( p.cin ) ) << test_data;
-	CHECK( p.cin == arjan::unix_tools::file() );
+	arjan::posix::ofstream( std::move( p.cin ) ) << test_data;
+	CHECK( p.cin == arjan::posix::file() );
 	std::string cout_output;
-	std::getline( arjan::unix_tools::ifstream( std::move( p.cout ) ), cout_output );
+	std::getline( arjan::posix::ifstream( std::move( p.cout ) ), cout_output );
 	CHECK_NOTHROW( p.result.value() );
 	CHECK( cout_output == test_data );
 }
@@ -89,7 +89,7 @@ TEST_CASE( "run command with modified env" )
 	opts.environment = { test_environment };
 	std::string result;
 	std::getline( 
-		arjan::unix_tools::ifstream( process( opts, env_command ).cout ),
+		arjan::posix::ifstream( process( opts, env_command ).cout ),
 		result
 	);
 	CHECK( result == test_environment );

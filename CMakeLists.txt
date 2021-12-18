@@ -6,27 +6,27 @@ endif()
 
 cmake_policy( SET CMP0048 NEW )
 
-project( unix_tools VERSION 1.0.0 )
+project( posix VERSION 1.0.0 )
 
 cmake_minimum_required( VERSION 3.19 )
 
 include( FetchContent )
 
-add_library( unix_tools INTERFACE )
+add_library( posix INTERFACE )
 
-target_compile_features( unix_tools
+target_compile_features( posix
 	INTERFACE
 		cxx_std_20
 )
 
-target_include_directories( unix_tools
+target_include_directories( posix
 	INTERFACE
 		include
 )
 
 if( CMAKE_HOST_UNIX )
 	find_package( Threads REQUIRED )
-	target_link_libraries( unix_tools INTERFACE Threads::Threads )
+	target_link_libraries( posix INTERFACE Threads::Threads )
 endif()
 
 if( PROJECT_IS_TOP_LEVEL )
@@ -57,7 +57,7 @@ if( PROJECT_IS_TOP_LEVEL )
 
 	target_link_libraries( runtest
 		PRIVATE
-			unix_tools
+			posix
 			Catch2
 	)
 

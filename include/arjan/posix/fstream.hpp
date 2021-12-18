@@ -1,9 +1,9 @@
 #pragma once
 
-#include "arjan/unix_tools/streambuf.hpp"
+#include "arjan/posix/streambuf.hpp"
 
 namespace arjan {
-namespace unix_tools {
+namespace posix {
 
 template < typename stream_base >
 struct basic_fstream : stream_base

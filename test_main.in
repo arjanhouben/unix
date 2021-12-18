@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch2/catch.hpp"
-#include "arjan/unix_tools/process.hpp"
+#include "arjan/posix/process.hpp"
 #include <string>
 
 std::string cmake_command = "@CMAKE_COMMAND@";
@@ -10,6 +10,6 @@ std::vector< std::string > current_environment;
 
 int main( int argc, char* argv[], char *envp[] )
 {
-	current_environment = arjan::unix_tools::process::environment( envp );
+	current_environment = arjan::posix::process::environment( envp );
 	return Catch::Session().run( argc, argv );
 }

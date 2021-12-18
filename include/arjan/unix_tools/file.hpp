@@ -1,9 +1,11 @@
 #pragma once
 
 #include <compare>
+#include <fcntl.h>
+#include <unistd.h>
 
 namespace arjan {
-namespace unix_tools {
+namespace posix {
 
 struct file
 {

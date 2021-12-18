@@ -3,6 +3,7 @@
 #include <future>
 #include <utility>
 #include <cstdlib>
+#include <vector>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -10,11 +11,11 @@
 #include <wait.h>
 #endif
 
-#include "arjan/unix_tools/file.hpp"
-#include "arjan/unix_tools/pipe.hpp"
+#include "arjan/posix/file.hpp"
+#include "arjan/posix/pipe.hpp"
 
 namespace arjan {
-namespace unix_tools {
+namespace posix {
 namespace process {
 
 template < typename F, typename ...Args >
@@ -135,7 +136,7 @@ struct handle
 
 	const int pid;
 	result_value result;
-	unix_tools::file cin, cout, cerr;
+	posix::file cin, cout, cerr;
 };
 
 enum class redirects
@@ -188,10 +189,10 @@ T environment( char **environment )
 
 inline process::handle process( process::options options_, std::string cmd, std::vector< std::string > arguments = {} )
 {
-	constexpr auto input = unix_tools::pipe::input;
-	constexpr auto output = unix_tools::pipe::output;
+	constexpr auto input = posix::pipe::input;
+	constexpr auto output = posix::pipe::output;
 
-	std::array< unix_tools::pipe, 3 > pipes;
+	std::array< posix::pipe, 3 > pipes;
 
 	constexpr std::array< size_t, 3 > FILE_DESCRIPTORS = {
 		STDIN_FILENO,
@@ -214,8 +215,8 @@ inline process::handle process( process::options options_, std::string cmd, std:
 				pipes[ pipe_id ].open();
 				break;
 			case process::redirects::null:
-				pipes[ pipe_id ][ input ] = unix_tools::file( "/dev/null", unix_tools::file::mode::read );
-				pipes[ pipe_id ][ output ] = unix_tools::file( "/dev/null", unix_tools::file::mode::write );
+				pipes[ pipe_id ][ input ] = posix::file( "/dev/null", posix::file::mode::read );
+				pipes[ pipe_id ][ output ] = posix::file( "/dev/null", posix::file::mode::write );
 				break;
 			case process::redirects::parent:
 				break;

@@ -23,5 +23,6 @@ struct basic_fstream : stream_base
 
 typedef basic_fstream< std::istream > ifstream;
 typedef basic_fstream< std::ostream > ofstream;
+typedef basic_fstream< std::iostream > fstream;
 
 }}

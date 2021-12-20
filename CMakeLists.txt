@@ -52,6 +52,7 @@ if( PROJECT_IS_TOP_LEVEL )
 
 	add_executable( runtest
 		tests.cpp
+		file.cpp
 		${CMAKE_CURRENT_BINARY_DIR}/test_main.cpp
 	)
 

@@ -9,6 +9,8 @@ namespace posix {
 
 struct file
 {
+	static constexpr int invalid = -1;
+
 	enum class mode 
 	{
 		read = O_RDONLY,
@@ -19,55 +21,61 @@ struct file
 	inline explicit file( const char *path, mode m ) :
 		no_( open( path, static_cast< std::underlying_type_t< mode > >( m ) ) ) {}
 
-	inline explicit file( int no = -1 ) noexcept :
+	inline explicit file( const std::string &path, mode m ) :
+		file( path.c_str(), m ) {}
+	
+	constexpr inline explicit file( int no = invalid ) noexcept :
 		no_( no ) {}
 	
-	inline file( file &&rhs ) noexcept :
+	constexpr inline file( file &&rhs ) noexcept :
 		no_( rhs.release() ) {}
 	
-	inline file& operator = ( file &&rhs ) noexcept
+	constexpr inline file& operator = ( file &&rhs ) noexcept
 	{
 		reset( rhs.release() );
 		return *this;
 	}
 	
-	inline ~file() noexcept
+	constexpr inline ~file() noexcept
 	{
-		if ( no_ >= 0 )
-		{
-			::close( no_ );
-		}
+		reset();
 	}
 
-	auto operator <=> ( const file &rhs ) const = default;
+	constexpr auto operator <=> ( const file &rhs ) const noexcept = default;
 
-	inline explicit operator bool() const noexcept
+	constexpr inline bool valid() const noexcept
 	{
-		return no_ >= 0;
+		return no_ != invalid;
+	}
+
+	constexpr inline explicit operator bool() const noexcept
+	{
+		return valid();
 	}
 	
-	inline int get() const noexcept
+	constexpr inline int get() const noexcept
 	{
 		return no_;
 	}
 	
-	inline int release() noexcept
+	constexpr inline int release() noexcept
 	{
-		int r = -1;
+		int r = invalid;
 		std::swap( no_, r );
 		return r;
 	}
 	
-	inline void reset( int no = -1 ) noexcept
+	constexpr inline void reset( int no = invalid ) noexcept
 	{
 		std::swap( no_, no );
-		if ( no >= 0 )
+		if ( valid() )
 		{
 			::close( no );
 		}
 	}
 	
 	private:
+
 		int no_;
 };
 

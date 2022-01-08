@@ -4,7 +4,7 @@
 #include <string>
 
 std::string cmake_command = "@CMAKE_COMMAND@";
-std::string cat_command = "@CAT_COMMAND@";
+std::string head_command = "@HEAD_COMMAND@";
 std::string env_command = "@ENV_COMMAND@";
 std::vector< std::string > current_environment;
 

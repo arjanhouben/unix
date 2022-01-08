@@ -42,7 +42,7 @@ if( PROJECT_IS_TOP_LEVEL )
 
 	enable_testing()
 
-	find_program( CAT_COMMAND cat REQUIRED )
+	find_program( HEAD_COMMAND head REQUIRED )
 	find_program( ENV_COMMAND env REQUIRED )
 
 	configure_file(
@@ -53,6 +53,7 @@ if( PROJECT_IS_TOP_LEVEL )
 	add_executable( runtest
 		tests.cpp
 		file.cpp
+		fstream.cpp
 		${CMAKE_CURRENT_BINARY_DIR}/test_main.cpp
 	)
 
@@ -69,6 +70,11 @@ if( PROJECT_IS_TOP_LEVEL )
 			-Wconversion
 	)
 
-	add_test( runtest runtest ${CMAKE_COMMAND} )
+	add_test(
+		NAME
+			runtest
+		COMMAND
+			runtest
+	)
 
 endif()

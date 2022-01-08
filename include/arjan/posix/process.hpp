@@ -11,23 +11,13 @@
 #include <wait.h>
 #endif
 
+#include "arjan/posix/errno.hpp"
 #include "arjan/posix/file.hpp"
 #include "arjan/posix/pipe.hpp"
 
 namespace arjan {
 namespace posix {
 namespace process {
-
-template < typename F, typename ...Args >
-auto check_errno( F &&f, Args &&...args )
-{
-	const auto result = f( std::forward< Args >( args )... );
-	if ( result == -1 )
-	{
-		throw std::system_error( errno, std::system_category() );
-	}
-	return result;
-}
 
 struct result_value
 {

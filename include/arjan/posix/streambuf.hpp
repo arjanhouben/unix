@@ -1,31 +1,53 @@
 #pragma once
 
 #include <streambuf>
-
 #include "arjan/posix/file.hpp"
 
 namespace arjan {
 namespace posix {
 
-template < typename char_type = char >
+template < typename char_type = char, size_t buffer_size = 1 >
 struct basic_streambuf : std::basic_streambuf< char_type >
 {
 	using base = std::basic_streambuf< char_type >;
 	using int_type = typename base::int_type;
 	using traits_type = typename base::traits_type;
 	
-	explicit basic_streambuf( file f ) noexcept  :
+	explicit basic_streambuf( file f )  :
 		base(),
-		file_( std::move( f ) ),
-		gcurrent_( traits_type::eof() ) {}
+		file_( std::move( f ) )
+	{
+		base::setg(
+			buffer_.data(),
+			buffer_.data() + buffer_.size(),
+			buffer_.data() + buffer_.size()
+		);
+
+		const auto flags = check_errno( fcntl, file_.get(), F_GETFL, 0 );
+		check_errno( fcntl, file_.get(), F_SETFL, flags | O_NONBLOCK );
+	}
 
 	auto reset( posix::file &&fileno = file() ) noexcept
 	{
 		std::swap( file_, fileno );
-		gcurrent_ = traits_type::eof();
 		return std::move( fileno );
 	}
-	
+
+	int_type underflow() override
+	{
+		const auto begin = buffer_.data();
+		const auto read = xsgetn( begin, static_cast< std::streamsize >( buffer_.size() ) );
+		if ( read > 0 )
+		{
+			base::setg( begin, begin, begin + read );
+		}
+		if ( base::gptr() == base::egptr() )
+		{
+			return traits_type::eof();
+		}
+		return traits_type::to_int_type( *base::gptr() );
+	}
+
 	std::streamsize xsgetn( char_type* dst, std::streamsize count ) override
 	{
 		const auto n = ::read( file_.get(), dst, static_cast< size_t >( count ) );
@@ -34,29 +56,6 @@ struct basic_streambuf : std::basic_streambuf< char_type >
 			return 0;
 		}
 		return n;
-	}
-
-	int_type underflow() override
-	{
-		if ( gcurrent_ == traits_type::eof() )
-		{
-			return uflow();
-		}
-		return gcurrent_;
-	}
-	
-	int_type uflow() override
-	{
-		char_type c;
-		if ( xsgetn( &c, 1 ) )
-		{
-			gcurrent_ = traits_type::to_int_type( c );
-		}
-		else
-		{
-			gcurrent_ = traits_type::eof();
-		}
-		return gcurrent_;
 	}
 
 	std::streamsize xsputn( const char_type* src, std::streamsize count ) override
@@ -82,7 +81,8 @@ struct basic_streambuf : std::basic_streambuf< char_type >
 	private:
 	
 		file file_;
-		int_type gcurrent_;
+		fd_set set_;
+		std::array< char_type, buffer_size > buffer_;
 };
 
 using streambuf = basic_streambuf< char >;

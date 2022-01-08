@@ -5,10 +5,10 @@
 namespace arjan {
 namespace posix {
 
-template < typename stream_base >
+template < typename stream_base, size_t buffer_size = 64 >
 struct basic_fstream : stream_base
 {
-	using streambuf_type = basic_streambuf< typename stream_base::char_type >;
+	using streambuf_type = basic_streambuf< typename stream_base::char_type, buffer_size >;
 
 	basic_fstream( file f ) :
 		basic_fstream( streambuf_type( std::move( f ) ) ) {}

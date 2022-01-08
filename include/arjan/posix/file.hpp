@@ -4,25 +4,28 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "arjan/posix/errno.hpp"
+
 namespace arjan {
 namespace posix {
 
 struct file
-{
-	static constexpr int invalid = -1;
-
-	enum class mode 
+{	struct mode 
 	{
-		read = O_RDONLY,
-		write = O_WRONLY,
-		read_write = O_RDWR
+		static constexpr auto read = O_RDONLY;
+		static constexpr auto write = O_WRONLY;
+		static constexpr auto read_write = O_RDWR;
+		static constexpr auto create = O_CREAT;
+		static constexpr auto truncate = O_TRUNC;
 	};
-
-	inline explicit file( const char *path, mode m ) :
-		no_( open( path, static_cast< std::underlying_type_t< mode > >( m ) ) ) {}
-
-	inline explicit file( const std::string &path, mode m ) :
+	
+	static constexpr int invalid = -1;
+	
+	inline explicit file( const std::string &path, int m ) :
 		file( path.c_str(), m ) {}
+
+	inline explicit file( const char *path, int m ) :
+		no_( check_errno( open, path, m ) ) {}
 	
 	constexpr inline explicit file( int no = invalid ) noexcept :
 		no_( no ) {}
